@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title><%= title %></title>
+	<link rel="stylesheet" href="https://bootswatch.com/4/cerulean/bootstrap.min.css">
+	<link rel="stylesheet" href="/style.css">
+	<link rel="shortcut icon" href="/icon-t-100.png" type="image/png">
+</head>
+<body class="bg-secondary">
+	<header class="fixed-top container">
+		<nav class="navbar navbar-dark bg-primary navbar-expand-md">
+			<a class="navbar-brand" href="/"><b><%= site_name %></b></a>
+			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#menu">
+				<span class="navbar-toggler-icon"></span>
+			</button>
+			<div class="collapse navbar-collapse" id="menu">
+				<ul class="navbar-nav ml-auto">
+			    	<li class="nav-item <%- navLink === 'home' && 'active' %>">
+			    		<a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
+			        </li>
+			    	<li class="nav-item <%- navLink === 'docs' && 'active' %>">
+			    		<a class="nav-link" href="/docs">Documentation</a>
+			        </li>
+			    	<li class="nav-item <%- navLink === 'blog' && 'active' %>">
+			    		<a class="nav-link" href="/blog">Blog</a>
+			        </li>
+			    	<li class="nav-item <%- navLink === 'about' && 'active' %>">
+			    		<a class="nav-link" href="/page/about">Page</a>
+			        </li>
+			    </ul>
+			</div>
+		</nav>
+	</header>
+	<div id="main" class="container">
+		<div class="row mr-0" style="padding-top:55px">
+			<div class="col-lg-9 order-1">
+				<main class="bg-white pt-4 p-3 p-md-4 border-top">
+					<%- body %>
+				</main>
+			</div>
+			<div class="col-lg-3 order-0">
+				<aside class="pt-4 pt-lg-4 p-3 p-md-4 p-lg-3 " style="background: #f6f6f6">
+					<% if (sidebar) { %>
+					<%- sidebar %>
+					<% } else { %>
+					<div class="card">
+						<div class="card-body p-3">
+							<p class="mb-0">Welcome to the <u>Topikweb</u>!</p>
+						</div>
+					</div>
+					<% } %>
+				</aside>
+			</div>
+		</div>
+	</div>
+	<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+	<script>
+		toastr.options.positionClass = 'toast-top-center'
+		toastr.options.progressBar = true
+		toastr.options.timeOut = 3000
+		$.ajaxSetup({
+			headers: {
+				'X-CSRF-Token': '<%= csrfToken %>'
+			}
+		})
+		$('.navbar-toggler').on('click', function() {
+			let el = $(this).data('target')
+			let isExpanded = $(el).is('.expanded')
+			if (isExpanded) {
+				$(el).slideUp()
+				$(el).toggleClass('expanded')
+			} else {
+				$(el).slideDown()
+				$(el).toggleClass('expanded')
+			}
+		})
+		window.defaultMethods = {
+			showImage(str) {
+				if (!str) {
+					return ''
+				}
+				if (str.substr(0,5) == '/file') {
+					return '<%= cdnUrl %>' + str
+				}
+				return str
+			},
+			formatRp(int) {
+				if (int === null || int === undefined) {
+					return '-'
+				}
+				var formatter = new Intl.NumberFormat('id-ID', {
+					style: 'currency',
+					currency: 'IDR',
+					minimumFractionDigits: 0
+				});
+				return formatter.format(int)
+			},
+			humanDate(dateInput) {
+				let monthWords = [
+					'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agts', 'Sept', 'Okt', 'Nov', 'Des'
+				]
+				let dateObj = new Date(dateInput)
+				let month = monthWords[dateObj.getMonth()]
+				let date = ('0' + dateObj.getDate()).substr(-2)
+				let hour = ('0' + dateObj.getHours()).substr(-2)
+				let minute = ('0' + dateObj.getMinutes()).substr(-2)
+				return date + ' ' + month + ' - ' + hour + ':' + minute
+			},
+			handleAjaxError(err) {
+				let msg = 'Terjadi kesalahan'
+				try {
+					let errjson = err.responseJSON.message
+					if (errjson) {
+						msg = errjson
+					}
+				} catch(e){}
+				return toastr.error(msg)
+			},
+			loadLazyImage() {
+				if (this.imagesLazy.length === 0) {
+					window.removeEventListener('scroll', this.loadLazyImage)
+					return false
+				}
+				for (let i = 0;i < this.imagesLazy.length;i++) {
+					let img = this.imagesLazy[i]
+					if (this.isInView(img)) {
+						$(img).attr('src', img.dataset.src)
+						this.imagesLazy.splice(i, 1)
+					}
+				}
+			},
+			isInView(el) {
+				let rect = el.getBoundingClientRect()
+				return (
+					rect.top    >= 0
+					&& rect.left   >= 0
+					&& rect.top <= (window.innerHeight || document.documentElement.clientHeight)
+				)
+			},
+			countWord(str) {
+				return str.split(' ')
+					.filter(function(n) { return n != '' })
+					.length
+			}
+		}
+	</script>
+	<script>
+		let flashError = '<%= flashError %>'
+		if (flashError) {
+			toastr.error(flashError)
+		}
+	</script>
+	<%- script %>
+</body>
+</html>

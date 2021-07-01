@@ -1,0 +1,10 @@
+<div class="mb-4 border-bottom">
+	<h1 class="h3 mb-3"><%= post.title %></h1>
+</div>
+<div class="article-body"><%- post.body %></div>
+
+<%- contentFor('sidebar') %>
+<div class="btn-group w-100">
+    <input type="text" class="form-control" placeholder="Search blog...">
+    <button class="btn btn-primary">Go</button>
+</div>

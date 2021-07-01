@@ -1,0 +1,23 @@
+<% data.forEach((doc) => { %>
+<div class="card">
+    <div class="card-body p-3">
+        <h6 class="mb-2">
+            <a href="/docs/<%= doc.id %>" class=""><%= doc.title %></a>
+        </h6>
+        <span class="badge badge-sm badge-primary mr-1">
+            v. <%= doc.version %>
+        </span>
+        <% doc.tags.forEach((tag) => { %>
+        <a href="?tag=<%= tag %>" class="badge badge-sm badge-secondary mr-1">
+            <%= tag %>
+        </a>
+        <% }) %>
+    </div>
+</div>
+<% }) %>
+
+<%- contentFor('sidebar') %>
+<div class="btn-group w-100">
+    <input type="text" class="form-control" placeholder="Search docs...">
+    <button class="btn btn-primary">Go</button>
+</div>

@@ -1,0 +1,21 @@
+<div class="mb-4 border-bottom">
+	<p class="h2 mb-3"><%= post.title %></p>
+	<h1 class="h6 mb-3 text-primary"><i><%= post.title %> - <%= topic.title %></i></h1>
+</div>
+<div class="article-body"><%- post.body %></div>
+
+<%- contentFor('sidebar') %>
+<% sidebar.forEach((m) => { %>
+<h6 class="mt-2"><%= m.head %></h6>
+<ul class="pl-3 mb-3 text-muted" type="square">
+    <% m.posts.forEach((p) => { %>
+	<li>
+        <% if(p.id == post.id) { %>
+		<span class="text-white bg-primary px-1"><%= p.title %></span>
+        <% } else { %>
+		<a href="<%= p.link %>" class=""><%= p.title %></a>
+        <% } %>
+	</li>
+    <% }) %>
+</ul>
+<% }) %>
